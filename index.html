@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maze Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Maze Game</h1>
+    </header>
+
+    <main>
+        <div class="container">
+            <canvas id="mazeCanvas"></canvas>
+            <div class="controls">
+                <button id="startButton">Start Game</button>
+                <p>Time: <span id="timer">0</span> seconds</p>
+                <p>Level: <span id="level">1</span></p>
+            </div>
+        </div>
+
+        <!-- Congratulations Modal -->
+        <div id="congratulationsModal" class="modal">
+            <div class="modal-content">
+                <h2>Congratulations!</h2>
+                <p>You completed the maze in <span id="finalTime"></span> seconds!</p>
+                <div class="modal-buttons">
+                    <button id="nextLevelButton">Next Level</button>
+                    <button id="exitButton">Exit</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Maze Game by Alex Ardelean.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

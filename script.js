@@ -7,6 +7,10 @@ const modal = document.getElementById('congratulationsModal');
 const finalTimeDisplay = document.getElementById('finalTime');
 const nextLevelButton = document.getElementById('nextLevelButton');
 const exitButton = document.getElementById('exitButton');
+const autoWinButton = document.createElement('button');
+
+autoWinButton.textContent = 'Auto Win Level';
+document.body.appendChild(autoWinButton);
 
 let timer;
 let timeElapsed = 0;
@@ -22,8 +26,8 @@ const player = {
 
 // Finish line position
 const finishLine = {
-    x: 520,
-    y: 40,
+    x: 0,
+    y: 0,
     size: 40,
 };
 
@@ -49,6 +53,10 @@ function generateMazeDFS(rows, cols) {
     maze[currentRow][currentCol] = 0;
     stack.push([currentRow, currentCol]);
 
+    let furthestPoint = { row: currentRow, col: currentCol, distance: 0 };
+    const distances = Array(rows).fill().map(() => Array(cols).fill(Infinity));
+    distances[currentRow][currentCol] = 0;
+
     while (stack.length > 0) {
         const [row, col] = stack[stack.length - 1];
         const neighbors = [];
@@ -66,12 +74,55 @@ function generateMazeDFS(rows, cols) {
             maze[newRow - dRow][newCol - dCol] = 0;
             maze[newRow][newCol] = 0;
             stack.push([newRow, newCol]);
+            distances[newRow][newCol] = distances[row][col] + 1;
+            if (distances[newRow][newCol] > furthestPoint.distance) {
+                furthestPoint = { row: newRow, col: newCol, distance: distances[newRow][newCol] };
+            }
         } else {
             stack.pop();
         }
     }
 
+    // Place the finish line at an accessible position
+    let finishPlaced = false;
+    while (!finishPlaced) {
+        if (!isSurroundedByWalls(maze, furthestPoint.row, furthestPoint.col)) {
+            finishLine.x = furthestPoint.col * player.size;
+            finishLine.y = furthestPoint.row * player.size;
+            finishPlaced = true;
+        } else {
+            const openCells = getAllOpenCells(maze);
+            furthestPoint = openCells[Math.floor(Math.random() * openCells.length)];
+        }
+    }
+
     return maze;
+}
+
+function isSurroundedByWalls(maze, row, col) {
+    const directions = [
+        [0, -1], // Up
+        [0, 1],  // Down
+        [-1, 0], // Left
+        [1, 0],  // Right
+    ];
+    return directions.every(([dRow, dCol]) => {
+        const newRow = row + dRow;
+        const newCol = col + dCol;
+        return newRow < 0 || newRow >= maze.length || newCol < 0 || newCol >= maze[0].length || maze[newRow][newCol] === 1;
+    });
+}
+
+function getAllOpenCells(maze) {
+    const openCells = [];
+    for (let row = 0; row < maze.length; row++) {
+        for (let col = 0; col < maze[row].length; col++) {
+            if (maze[row][col] === 0) {
+                openCells.push({ row, col });
+            }
+        }
+    }
+    return openCells;
 }
 
 // Function to draw the maze
@@ -109,15 +160,17 @@ function startGame() {
         isGameActive = true;
         timerDisplay.textContent = timeElapsed;
         levelDisplay.textContent = level;
-        player.x = 40;
-        player.y = 40;
+        player.x = player.size;
+        player.y = player.size;
         maze = generateMazeDFS(15, 15);
+        updateCanvasSize();
         drawMaze();
         startTimer();
     }
 }
 
 function startTimer() {
+    clearInterval(timer);
     timer = setInterval(() => {
         timeElapsed++;
         timerDisplay.textContent = timeElapsed;
@@ -142,6 +195,14 @@ function canMove(newX, newY) {
     const row = Math.floor(newY / player.size);
     const col = Math.floor(newX / player.size);
     return maze[row] && maze[row][col] === 0;
+}
+
+function updateCanvasSize() {
+    const newSize = 600 * Math.pow(1.2, level - 1);
+    canvas.width = newSize;
+    canvas.height = newSize;
+    player.size = Math.floor(newSize / maze.length);
+    finishLine.size = player.size;
 }
 
 window.addEventListener('keydown', (event) => {
@@ -170,16 +231,35 @@ window.addEventListener('keydown', (event) => {
 
 startButton.addEventListener('click', startGame);
 
+autoWinButton.addEventListener('click', () => {
+    if (isGameActive) {
+        showCongratulations();
+    }
+});
+
 exitButton.addEventListener('click', () => {
     window.close();
 });
 
 nextLevelButton.addEventListener('click', () => {
-    modal.style.display = 'none';
-    level++;
-    maze = generateMazeDFS(15, 15);
-    drawMaze();
-    startTimer();
+    if (level < 5) {
+        modal.style.display = 'none';
+        level++;
+        timeElapsed = 0;
+        timerDisplay.textContent = timeElapsed;
+        levelDisplay.textContent = level;
+        const newRows = Math.round(15 * Math.pow(1.2, level - 1));
+        const newCols = Math.round(15 * Math.pow(1.2, level - 1));
+        player.x = player.size;
+        player.y = player.size;
+        maze = generateMazeDFS(newRows, newCols);
+        updateCanvasSize();
+        drawMaze();
+        startTimer();
+    } else {
+        alert('You have completed all 5 levels!');
+        window.close();
+    }
 });
 
 drawMaze();

@@ -11,6 +11,8 @@ const nextLevelButton = document.getElementById('nextLevelButton');
 const exitButton = document.getElementById('exitButton');
 const autoWinButton = document.createElement('button');
 
+const moveSpeed = 4; // Number of pixels per frame
+
 const tilesetImage = new Image();
 tilesetImage.src = "assets/tileset 1.png";
 
@@ -32,6 +34,7 @@ const player = {
     offsetY: 16 // Optional offset to align the feet with the ground
 };
 
+let targetPosition = { x: player.x, y: player.y };
 
 const finishLine = {
     x: 0,
@@ -152,7 +155,6 @@ function drawMaze() {
     drawPlayer(ctx, player, performance.now());
 }
 
-
 function showCongratulations() {
     clearInterval(timer);
     modal.style.display = 'flex';
@@ -168,6 +170,7 @@ function startGame() {
         levelDisplay.textContent = level;
         player.x = player.size;
         player.y = player.size;
+        targetPosition = { x: player.x, y: player.y };
         setAnimation('idle');
         maze = generateMazeDFS(15, 15);
         updateCanvasSize();
@@ -184,20 +187,48 @@ function startTimer() {
     }, 1000);
 }
 
-function movePlayer(dx, dy, direction) {
+function movePlayer(dx, dy) {
+    // Set the target position instead of moving instantly
     const newX = player.x + dx;
     const newY = player.y + dy;
 
+    // Ensure we only move if it's a valid target
     if (canMove(newX, newY)) {
-        player.x = newX;
-        player.y = newY;
-        setAnimation(direction);
-    } else {
-        setAnimation('idle');
+        targetPosition.x = newX;
+        targetPosition.y = newY;
+    }
+}
+
+function updatePlayerPosition() {
+    // Calculate the difference between current and target positions
+    const dx = targetPosition.x - player.x;
+    const dy = targetPosition.y - player.y;
+
+    if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+        // Determine direction for animation
+        if (Math.abs(dx) > Math.abs(dy)) {
+            setAnimation(dx > 0 ? 'walkRight' : 'walkLeft');
+        } else {
+            setAnimation(dy > 0 ? 'down' : 'up');
+        }
     }
 
-    if (player.x === finishLine.x && player.y === finishLine.y) {
-        showCongratulations();
+    // Move the player gradually towards the target position
+    if (Math.abs(dx) > moveSpeed) {
+        player.x += dx > 0 ? moveSpeed : -moveSpeed;
+    } else {
+        player.x = targetPosition.x; // Snap to the exact target position if close enough
+    }
+
+    if (Math.abs(dy) > moveSpeed) {
+        player.y += dy > 0 ? moveSpeed : -moveSpeed;
+    } else {
+        player.y = targetPosition.y; // Snap to the exact target position if close enough
+    }
+
+    // Stop animation if player has reached the target
+    if (player.x === targetPosition.x && player.y === targetPosition.y) {
+        setAnimation('idle');
     }
 }
 
@@ -220,26 +251,34 @@ window.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
-                movePlayer(0, -player.size, 'up');
+                movePlayer(0, -player.size);
                 break;
             case 'ArrowDown':
                 event.preventDefault();
-                movePlayer(0, player.size, 'down');
+                movePlayer(0, player.size);
                 break;
             case 'ArrowLeft':
                 event.preventDefault();
-                movePlayer(-player.size, 0, 'walkLeft');
+                movePlayer(-player.size, 0);
                 break;
             case 'ArrowRight':
                 event.preventDefault();
-                movePlayer(player.size, 0, 'walkRight');
+                movePlayer(player.size, 0);
                 break;
         }
-        drawMaze();
     }
 });
 
-startButton.addEventListener('click', startGame);
+function gameLoop() {
+    updatePlayerPosition();
+    drawMaze();
+    requestAnimationFrame(gameLoop);
+}
+
+startButton.addEventListener('click', () => {
+    startGame();
+    gameLoop(); // Start the game loop
+});
 
 autoWinButton.addEventListener('click', () => {
     if (isGameActive) {
@@ -262,6 +301,7 @@ nextLevelButton.addEventListener('click', () => {
         const newCols = Math.round(15 * Math.pow(1.2, level - 1));
         player.x = player.size;
         player.y = player.size;
+        targetPosition = { x: player.x, y: player.y };
         setAnimation('idle');
         maze = generateMazeDFS(newRows, newCols);
         updateCanvasSize();
@@ -272,7 +312,6 @@ nextLevelButton.addEventListener('click', () => {
         window.close();
     }
 });
-
 
 tilesetImage.onload = function() {
     backgroundImage.onload = function() {

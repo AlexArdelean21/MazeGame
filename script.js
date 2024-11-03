@@ -14,6 +14,9 @@ const autoWinButton = document.createElement('button');
 const tilesetImage = new Image();
 tilesetImage.src = "assets/tileset 1.png";
 
+const backgroundImage = new Image();
+backgroundImage.src = "assets/RockWall_Normal.png"; 
+
 autoWinButton.textContent = 'Auto Win Level';
 document.body.appendChild(autoWinButton);
 
@@ -22,14 +25,14 @@ let timeElapsed = 0;
 let level = 1;
 let isGameActive = false;
 
-// Player settings
 const player = {
     x: 48,
     y: 48,
-    size: 48,
+    size: 64,  // Updated player size (e.g., increase to 64 or more to make it bigger)
+    offsetY: 16 // Optional offset to align the feet with the ground
 };
 
-// Finish line position
+
 const finishLine = {
     x: 0,
     y: 0,
@@ -84,7 +87,6 @@ function generateMazeDFS(rows, cols) {
         }
     }
 
-    // Place the finish line at an accessible position
     let finishPlaced = false;
     while (!finishPlaced) {
         if (!isSurroundedByWalls(maze, furthestPoint.row, furthestPoint.col)) {
@@ -102,10 +104,7 @@ function generateMazeDFS(rows, cols) {
 
 function isSurroundedByWalls(maze, row, col) {
     const directions = [
-        [0, -1], // Up
-        [0, 1],  // Down
-        [-1, 0], // Left
-        [1, 0],  // Right
+        [0, -1], [0, 1], [-1, 0], [1, 0],
     ];
     return directions.every(([dRow, dCol]) => {
         const newRow = row + dRow;
@@ -132,26 +131,32 @@ function drawMaze() {
     for (let row = 0; row < maze.length; row++) {
         for (let col = 0; col < maze[row].length; col++) {
             if (maze[row][col] === 1) {
-                // Draw wall tile from the tileset
-                const tileX = 48; 
-                const tileY = 0;  
-                ctx.drawImage(tilesetImage, tileX, tileY, 48, 48, col * player.size, row * player.size, player.size, player.size);
+                // Draw wall cells
+                const wallTileX = 48; 
+                const wallTileY = 0;  
+                ctx.drawImage(tilesetImage, wallTileX, wallTileY, 48, 48, col * player.size, row * player.size, player.size, player.size);
+            } else {
+                // Draw path cells with RockWall_Normal tile
+                const pathTileX = 0; 
+                const pathTileY = 0; 
+                ctx.drawImage(backgroundImage, pathTileX, pathTileY, 48, 48, col * player.size, row * player.size, player.size, player.size);
             }
         }
     }
-    
+
     // Draw the finish line
     ctx.fillStyle = 'green';
     ctx.fillRect(finishLine.x, finishLine.y, finishLine.size, finishLine.size);
 
-    // Draw the player
+    // Draw the player character
     drawPlayer(ctx, player, performance.now());
 }
 
+
 function showCongratulations() {
     clearInterval(timer);
-    finalTimeDisplay.textContent = timeElapsed;
     modal.style.display = 'flex';
+    finalTimeDisplay.textContent = timeElapsed;
 }
 
 function startGame() {
@@ -163,6 +168,7 @@ function startGame() {
         levelDisplay.textContent = level;
         player.x = player.size;
         player.y = player.size;
+        setAnimation('idle');
         maze = generateMazeDFS(15, 15);
         updateCanvasSize();
         drawMaze();
@@ -178,13 +184,16 @@ function startTimer() {
     }, 1000);
 }
 
-function movePlayer(dx, dy) {
+function movePlayer(dx, dy, direction) {
     const newX = player.x + dx;
     const newY = player.y + dy;
-    
+
     if (canMove(newX, newY)) {
         player.x = newX;
         player.y = newY;
+        setAnimation(direction);
+    } else {
+        setAnimation('idle');
     }
 
     if (player.x === finishLine.x && player.y === finishLine.y) {
@@ -211,23 +220,19 @@ window.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
-                setAnimation('up');
-                movePlayer(0, -player.size);
+                movePlayer(0, -player.size, 'up');
                 break;
             case 'ArrowDown':
                 event.preventDefault();
-                setAnimation('down');
-                movePlayer(0, player.size);
+                movePlayer(0, player.size, 'down');
                 break;
             case 'ArrowLeft':
                 event.preventDefault();
-                setAnimation('walk left');
-                movePlayer(-player.size, 0);
+                movePlayer(-player.size, 0, 'walkLeft');
                 break;
             case 'ArrowRight':
                 event.preventDefault();
-                setAnimation('walk right');
-                movePlayer(player.size, 0);
+                movePlayer(player.size, 0, 'walkRight');
                 break;
         }
         drawMaze();
@@ -257,6 +262,7 @@ nextLevelButton.addEventListener('click', () => {
         const newCols = Math.round(15 * Math.pow(1.2, level - 1));
         player.x = player.size;
         player.y = player.size;
+        setAnimation('idle');
         maze = generateMazeDFS(newRows, newCols);
         updateCanvasSize();
         drawMaze();
@@ -267,6 +273,9 @@ nextLevelButton.addEventListener('click', () => {
     }
 });
 
+
 tilesetImage.onload = function() {
-    drawMaze();
+    backgroundImage.onload = function() {
+        drawMaze();
+    };
 };

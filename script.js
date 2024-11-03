@@ -1,3 +1,5 @@
+import { drawPlayer, setAnimation } from './characterAnimations.js';
+
 const canvas = document.getElementById('mazeCanvas');
 const ctx = canvas.getContext('2d');
 const startButton = document.getElementById('startButton');
@@ -8,6 +10,9 @@ const finalTimeDisplay = document.getElementById('finalTime');
 const nextLevelButton = document.getElementById('nextLevelButton');
 const exitButton = document.getElementById('exitButton');
 const autoWinButton = document.createElement('button');
+
+const tilesetImage = new Image();
+tilesetImage.src = "assets/tileset 1.png";
 
 autoWinButton.textContent = 'Auto Win Level';
 document.body.appendChild(autoWinButton);
@@ -121,15 +126,16 @@ function getAllOpenCells(maze) {
     return openCells;
 }
 
-// Function to draw the maze
 function drawMaze() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let row = 0; row < maze.length; row++) {
         for (let col = 0; col < maze[row].length; col++) {
             if (maze[row][col] === 1) {
-                ctx.fillStyle = 'black';
-                ctx.fillRect(col * player.size, row * player.size, player.size, player.size);
+                // Draw wall tile from the tileset
+                const tileX = 48; 
+                const tileY = 0;  
+                ctx.drawImage(tilesetImage, tileX, tileY, 48, 48, col * player.size, row * player.size, player.size, player.size);
             }
         }
     }
@@ -139,8 +145,7 @@ function drawMaze() {
     ctx.fillRect(finishLine.x, finishLine.y, finishLine.size, finishLine.size);
 
     // Draw the player
-    ctx.fillStyle = 'red';
-    ctx.fillRect(player.x, player.y, player.size, player.size);
+    drawPlayer(ctx, player, performance.now());
 }
 
 function showCongratulations() {
@@ -206,18 +211,22 @@ window.addEventListener('keydown', (event) => {
         switch (event.key) {
             case 'ArrowUp':
                 event.preventDefault();
+                setAnimation('up');
                 movePlayer(0, -player.size);
                 break;
             case 'ArrowDown':
                 event.preventDefault();
+                setAnimation('down');
                 movePlayer(0, player.size);
                 break;
             case 'ArrowLeft':
                 event.preventDefault();
+                setAnimation('walk left');
                 movePlayer(-player.size, 0);
                 break;
             case 'ArrowRight':
                 event.preventDefault();
+                setAnimation('walk right');
                 movePlayer(player.size, 0);
                 break;
         }
@@ -258,4 +267,6 @@ nextLevelButton.addEventListener('click', () => {
     }
 });
 
-drawMaze();
+tilesetImage.onload = function() {
+    drawMaze();
+};

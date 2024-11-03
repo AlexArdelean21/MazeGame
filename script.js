@@ -19,23 +19,19 @@ let isGameActive = false;
 
 // Player settings
 const player = {
-    x: 40,
-    y: 40,
-    size: 40,
+    x: 48,
+    y: 48,
+    size: 48,
 };
 
 // Finish line position
 const finishLine = {
     x: 0,
     y: 0,
-    size: 40,
+    size: 48,
 };
 
 let maze;
-
-// Set the canvas size
-canvas.width = 600;
-canvas.height = 600;
 
 // Function to generate a random maze using DFS
 function generateMazeDFS(rows, cols) {
@@ -198,10 +194,10 @@ function canMove(newX, newY) {
 }
 
 function updateCanvasSize() {
-    const newSize = 600 * Math.pow(1.2, level - 1);
-    canvas.width = newSize;
-    canvas.height = newSize;
-    player.size = Math.floor(newSize / maze.length);
+    const rows = maze.length;
+    const cols = maze[0].length;
+    canvas.width = cols * player.size;
+    canvas.height = rows * player.size;
     finishLine.size = player.size;
 }
 

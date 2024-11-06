@@ -11,7 +11,7 @@ const nextLevelButton = document.getElementById('nextLevelButton');
 const exitButton = document.getElementById('exitButton');
 const autoWinButton = document.createElement('button');
 
-const moveSpeed = 4; // Number of pixels per frame
+const moveSpeed = 2; 
 
 const tilesetImage = new Image();
 tilesetImage.src = "assets/tileset 1.png";
@@ -30,7 +30,7 @@ let isGameActive = false;
 const player = {
     x: 48,
     y: 48,
-    size: 64,  // Updated player size (e.g., increase to 64 or more to make it bigger)
+    size: 64,
     offsetY: 16 // Optional offset to align the feet with the ground
 };
 
@@ -147,11 +147,9 @@ function drawMaze() {
         }
     }
 
-    // Draw the finish line
     ctx.fillStyle = 'green';
     ctx.fillRect(finishLine.x, finishLine.y, finishLine.size, finishLine.size);
 
-    // Draw the player character
     drawPlayer(ctx, player, performance.now());
 }
 
@@ -187,25 +185,45 @@ function startTimer() {
     }, 1000);
 }
 
-function movePlayer(dx, dy) {
-    // Set the target position instead of moving instantly
-    const newX = player.x + dx;
-    const newY = player.y + dy;
+function isWalkable(corner) {
+    const row = Math.floor(corner.y / player.size);
+    const col = Math.floor(corner.x / player.size);
 
-    // Ensure we only move if it's a valid target
+    return maze[row] && maze[row][col] === 0;
+}
+
+function movePlayer(dx, dy) {
+    let newX = player.x + dx;
+    let newY = player.y + dy;
+
+    if (Math.abs(dx) > 0) {
+        newY = Math.round(player.y / player.size) * player.size; 
+    } else if (Math.abs(dy) > 0) {
+        newX = Math.round(player.x / player.size) * player.size; 
+    }
+
     if (canMove(newX, newY)) {
         targetPosition.x = newX;
         targetPosition.y = newY;
     }
 }
 
+function canMove(newX, newY) {
+    const buffer = 2;
+
+    const topLeft = { x: newX + buffer, y: newY + buffer };
+    const topRight = { x: newX + player.size - buffer, y: newY + buffer };
+    const bottomLeft = { x: newX + buffer, y: newY + player.size - buffer };
+    const bottomRight = { x: newX + player.size - buffer, y: newY + player.size - buffer };
+
+    return isWalkable(topLeft) && isWalkable(topRight) && isWalkable(bottomLeft) && isWalkable(bottomRight);
+}
+
 function updatePlayerPosition() {
-    // Calculate the difference between current and target positions
     const dx = targetPosition.x - player.x;
     const dy = targetPosition.y - player.y;
 
     if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
-        // Determine direction for animation
         if (Math.abs(dx) > Math.abs(dy)) {
             setAnimation(dx > 0 ? 'walkRight' : 'walkLeft');
         } else {
@@ -217,25 +235,39 @@ function updatePlayerPosition() {
     if (Math.abs(dx) > moveSpeed) {
         player.x += dx > 0 ? moveSpeed : -moveSpeed;
     } else {
-        player.x = targetPosition.x; // Snap to the exact target position if close enough
+        player.x = targetPosition.x; 
     }
 
     if (Math.abs(dy) > moveSpeed) {
         player.y += dy > 0 ? moveSpeed : -moveSpeed;
     } else {
-        player.y = targetPosition.y; // Snap to the exact target position if close enough
+        player.y = targetPosition.y; 
     }
 
     // Stop animation if player has reached the target
     if (player.x === targetPosition.x && player.y === targetPosition.y) {
         setAnimation('idle');
+        snapToGrid(); 
+    }
+
+    if (isPlayerAtFinishLine()) {
+        showCongratulations();
     }
 }
 
-function canMove(newX, newY) {
-    const row = Math.floor(newY / player.size);
-    const col = Math.floor(newX / player.size);
-    return maze[row] && maze[row][col] === 0;
+function snapToGrid() {
+    player.x = Math.round(player.x / player.size) * player.size;
+    player.y = Math.round(player.y / player.size) * player.size;
+}
+
+function isPlayerAtFinishLine() {
+    const buffer = 4; // buffer to ensure collision accuracy
+    return (
+        player.x + buffer < finishLine.x + finishLine.size &&
+        player.x + player.size - buffer > finishLine.x &&
+        player.y + buffer < finishLine.y + finishLine.size &&
+        player.y + player.size - buffer > finishLine.y
+    );
 }
 
 function updateCanvasSize() {
@@ -277,7 +309,7 @@ function gameLoop() {
 
 startButton.addEventListener('click', () => {
     startGame();
-    gameLoop(); // Start the game loop
+    gameLoop(); 
 });
 
 autoWinButton.addEventListener('click', () => {

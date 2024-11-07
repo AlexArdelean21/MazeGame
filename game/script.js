@@ -14,8 +14,12 @@ import {
     FRAME_RATE
 } from './config.js';
 
+const menuMusic = new Audio('../assets/sounds/awesomeness.wav');
+menuMusic.loop = true;
+menuMusic.volume = 0.5;
+
 const backgroundMusic = new Audio('../assets/sounds/happy.mp3');
-backgroundMusic.loop = true; // Enable looping
+backgroundMusic.loop = true;
 backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
 
 const portalSound = new Audio('../assets/sounds/teleport2.wav');
@@ -48,6 +52,10 @@ let finishLine = {
 
 const tilesetImage = new Image();
 const backgroundImage = new Image();
+
+window.addEventListener('load', () => {
+    menuMusic.play();
+});
 
 function loadImage(src) {
     return new Promise((resolve, reject) => {
@@ -139,6 +147,11 @@ export function startTeleportationAnimation() {
 function startGame() {
     if (!window.isGameActive) {
         console.log('Starting game. All assets are loaded.');
+
+        menuMusic.pause();
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play();
+
         timeElapsed = 0;
         level = 1;
         window.isGameActive = true;
@@ -237,6 +250,7 @@ autoWinButton.addEventListener('click', () => {
 exitButton.addEventListener('click', () => {
     backgroundMusic.pause();
     backgroundMusic.currentTime = 0;
+    menuMusic.play();
     window.location.reload();
 });
 

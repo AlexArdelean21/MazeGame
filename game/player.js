@@ -98,14 +98,9 @@ function snapToGrid() {
 }
 
 function isPlayerAtFinishLine(finishLine) {
-    const buffer = 4;
-    return (
-        player.x + buffer < finishLine.x + finishLine.size &&
-        player.x + player.size - buffer > finishLine.x &&
-        player.y + buffer < finishLine.y + finishLine.size &&
-        player.y + player.size - buffer > finishLine.y
-    );
+    return player.x === finishLine.x && player.y === finishLine.y;
 }
+
 
 export function resetPlayerPosition() {
     player.x = TILE_SIZE;

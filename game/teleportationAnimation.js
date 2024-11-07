@@ -1,5 +1,5 @@
 export const teleportationFrames = [];
-export const totalTeleportationFrames = 2; 
+export const totalTeleportationFrames = 14; 
 let teleportationImagesLoaded = 0;
 export let teleportationImagesReady = false;
 

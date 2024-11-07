@@ -1,4 +1,3 @@
-// maze.js
 import { TILE_SIZE } from './config.js';
 
 export function generateMazeDFS(rows, cols) {

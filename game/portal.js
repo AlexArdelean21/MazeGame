@@ -1,7 +1,7 @@
 import { TILE_SIZE } from './config.js';
 
 export const portalFrames = [];
-const totalPortalFrames = 41; // Set to your actual frame count
+const totalPortalFrames = 41;
 let portalImagesLoaded = 0;
 export let portalImagesReady = false;
 

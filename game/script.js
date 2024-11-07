@@ -1,11 +1,10 @@
 import { generateMazeDFS } from './maze.js';
-import { portalImagesReady } from './portal.js';
+import { portalImagesReady, drawPortal } from './portal.js';
 import { player, movePlayer, resetPlayerPosition} from './player.js';
 import { setAnimation } from './characterAnimations.js';
 import { gameLoop, cancelGameLoop } from './gameLoop.js';
-import { teleportationFrames, totalTeleportationFrames } from './teleportationAnimation.js';
+import { teleportationFrames, totalTeleportationFrames, teleportationImagesReady } from './teleportationAnimation.js';
 import { drawMaze } from './draw.js';
-import { teleportationImagesReady } from './teleportationAnimation.js';
 import {
     TILE_SIZE,
     INITIAL_MAZE_SIZE,
@@ -96,12 +95,12 @@ function showCongratulations() {
 
 export function startTeleportationAnimation() {
     window.isGameActive = false; // Stop game interactions
-    backgroundMusic.pause(); // Pause background music
-    portalSound.currentTime = 0; // Reset sound in case it's already playing
-    portalSound.play(); // Play portal sound effect
+    backgroundMusic.pause(); 
+    portalSound.currentTime = 0;
+    portalSound.play();
 
     let teleportationStartTime = null;
-    const teleportationDuration = 3600; // Duration in milliseconds (3.6 seconds)
+    const teleportationDuration = 2500; // Duration in milliseconds (3.6 seconds)
     const totalFrames = teleportationFrames.length;
     const frameDuration = teleportationDuration / totalFrames;
 
@@ -129,7 +128,6 @@ export function startTeleportationAnimation() {
         if (elapsed < teleportationDuration) {
             requestAnimationFrame(teleportationLoop);
         } else {
-            // After the animation, show the congratulations modal
             showCongratulations();
         }
     }
@@ -156,7 +154,7 @@ function startGame() {
         finishLine.x = finishPoint.col * TILE_SIZE;
         finishLine.y = finishPoint.row * TILE_SIZE;
         updateCanvasSize();
-        drawMaze(ctx, maze, finishLine);
+        drawMaze(ctx, maze, finishLine, backgroundImage);
         autoWinButton.disabled = false;
         backgroundMusic.play();
         startTimer();
@@ -259,7 +257,7 @@ nextLevelButton.addEventListener('click', () => {
         finishLine.x = finishPoint.col * TILE_SIZE;
         finishLine.y = finishPoint.row * TILE_SIZE;
         updateCanvasSize();
-        drawMaze(ctx, maze, finishLine);
+        drawMaze(ctx, maze, finishLine, backgroundImage);
         startTimer();
         backgroundMusic.play();
         window.isGameActive = true;

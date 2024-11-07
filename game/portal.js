@@ -1,24 +1,29 @@
 import { TILE_SIZE } from './config.js';
 
 export const portalFrames = [];
-const totalPortalFrames = 42;
+const totalPortalFrames = 41; // Set to your actual frame count
 let portalImagesLoaded = 0;
 export let portalImagesReady = false;
 
-for (let i = 1; i < totalPortalFrames; i++) {
+for (let i = 1; i <= totalPortalFrames; i++) {
     const img = new Image();
     img.src = `../assets/Portal/Portal_100x100px${i}.png`;
     img.onload = () => {
         portalImagesLoaded++;
+        console.log(`Loaded portal frame ${i}`);
         if (portalImagesLoaded === totalPortalFrames) {
             portalImagesReady = true;
+            console.log('All portal images loaded.');
         }
+    };
+    img.onerror = (error) => {
+        console.error(`Failed to load portal frame ${i}`, error);
     };
     portalFrames.push(img);
 }
 
 let currentPortalFrameIndex = 0;
-const portalFrameRate = 10; // Adjust as needed for animation speed
+const portalFrameRate = 10;
 let portalElapsedTimeSinceLastFrame = 0;
 
 export function drawPortal(ctx, finishLine, deltaTime) {
@@ -30,7 +35,6 @@ export function drawPortal(ctx, finishLine, deltaTime) {
 
     const currentImage = portalFrames[currentPortalFrameIndex];
     if (currentImage) {
-        // Adjust the portal size and position
         const portalScale = 1.9;
         const portalWidth = TILE_SIZE * portalScale;
         const portalHeight = TILE_SIZE * portalScale;

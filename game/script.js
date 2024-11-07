@@ -1,8 +1,11 @@
 import { generateMazeDFS } from './maze.js';
 import { portalImagesReady } from './portal.js';
-import { player, movePlayer, resetPlayerPosition } from './player.js';
+import { player, movePlayer, resetPlayerPosition} from './player.js';
 import { setAnimation } from './characterAnimations.js';
 import { gameLoop, cancelGameLoop } from './gameLoop.js';
+import { teleportationFrames, totalTeleportationFrames } from './teleportationAnimation.js';
+import { drawMaze } from './draw.js';
+import { teleportationImagesReady } from './teleportationAnimation.js';
 import {
     TILE_SIZE,
     INITIAL_MAZE_SIZE,
@@ -11,6 +14,13 @@ import {
     TILESET_TILE_SIZE,
     FRAME_RATE
 } from './config.js';
+
+const backgroundMusic = new Audio('../assets/sounds/happy.mp3');
+backgroundMusic.loop = true; // Enable looping
+backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
+
+const portalSound = new Audio('../assets/sounds/teleport2.wav');
+portalSound.volume = 0.7;
 
 const canvas = document.getElementById('mazeCanvas');
 const ctx = canvas.getContext('2d');
@@ -21,10 +31,9 @@ const modal = document.getElementById('congratulationsModal');
 const finalTimeDisplay = document.getElementById('finalTime');
 const nextLevelButton = document.getElementById('nextLevelButton');
 const exitButton = document.getElementById('exitButton');
-const autoWinButton = document.createElement('button');
+const autoWinButton = document.getElementById('autoWinButton');
 
-autoWinButton.textContent = 'Auto Win Level';
-document.body.appendChild(autoWinButton);
+autoWinButton.disabled = true;
 
 let timer;
 let timeElapsed = 0;
@@ -50,88 +59,88 @@ function loadImage(src) {
     });
 }
 
-//  startButton.disabled = true; // Disable start button until assets are loaded
+startButton.disabled = true; // Disable start button until assets are loaded
 
 Promise.all([
     loadImage('../assets/tileset 1.png'),
-    loadImage('../assets/RockWall_Normal.png')
+    loadImage('../assets/RockWall_Normal.png'),
+    // Load the first teleportation frame as a proxy for all frames
+    loadImage('../characters/teleportation_frames/teleport_0.png')
 ]).then((images) => {
     tilesetImage.src = images[0].src;
     backgroundImage.src = images[1].src;
 
-    // Check if portal images are ready
     const checkAssetsLoaded = setInterval(() => {
-        if (portalImagesReady) {
+        console.log('Checking if assets are loaded...');
+        if (portalImagesReady && teleportationImagesReady) {
             clearInterval(checkAssetsLoaded);
-            startButton.disabled = false;
+            startButton.disabled = false; // Enable start button
+            console.log('All assets loaded. Start button enabled.');
         }
     }, 100);
+    
 }).catch((error) => {
     console.error('Failed to load images:', error);
 });
-
-Promise.all([
-    loadImage('assets/tileset 1.png'),
-    loadImage('assets/RockWall_Normal.png'),
-]).then((images) => {
-    tilesetImage.src = images[0].src;
-    backgroundImage.src = images[1].src;
-}).catch((error) => {
-    console.error('Failed to load images:', error);
-});
-
-export function drawMaze(ctx, maze, finishLine) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const tileSize = TILE_SIZE;
-    const mazeRows = maze.length;
-    const mazeCols = maze[0].length;
-
-    for (let row = 0; row < mazeRows; row++) {
-        const mazeRow = maze[row];
-        for (let col = 0; col < mazeCols; col++) {
-            const cell = mazeRow[col];
-            const x = col * tileSize;
-            const y = row * tileSize;
-            if (cell === 1) {
-                ctx.drawImage(
-                    tilesetImage,
-                    TILESET_TILE_SIZE,
-                    0,
-                    TILESET_TILE_SIZE,
-                    TILESET_TILE_SIZE,
-                    x,
-                    y,
-                    tileSize,
-                    tileSize
-                );
-            } else {
-                ctx.drawImage(
-                    backgroundImage,
-                    0,
-                    0,
-                    TILESET_TILE_SIZE,
-                    TILESET_TILE_SIZE,
-                    x,
-                    y,
-                    tileSize,
-                    tileSize
-                );
-            }
-        }
-    }
-}
 
 function showCongratulations() {
     clearInterval(timer);
     cancelGameLoop();
     window.isGameActive = false;
+    portalSound.play();
     modal.style.display = 'flex';
     finalTimeDisplay.textContent = timeElapsed;
+    backgroundMusic.pause();
+    autoWinButton.disabled = true;
+}
+
+export function startTeleportationAnimation() {
+    window.isGameActive = false; // Stop game interactions
+    backgroundMusic.pause(); // Pause background music
+    portalSound.currentTime = 0; // Reset sound in case it's already playing
+    portalSound.play(); // Play portal sound effect
+
+    let teleportationStartTime = null;
+    const teleportationDuration = 3600; // Duration in milliseconds (3.6 seconds)
+    const totalFrames = teleportationFrames.length;
+    const frameDuration = teleportationDuration / totalFrames;
+
+    function teleportationLoop(currentTime) {
+        if (!teleportationStartTime) teleportationStartTime = currentTime;
+        const elapsed = currentTime - teleportationStartTime;
+        const frameIndex = Math.min(Math.floor(elapsed / frameDuration), totalFrames - 1);
+
+        // Clear the canvas and redraw the maze and portal
+        drawMaze(ctx, maze, tilesetImage, backgroundImage);
+        drawPortal(ctx, finishLine, 0); // deltaTime is 0 since portal animation is paused
+
+        // Draw the teleportation frame
+        const frameImage = teleportationFrames[frameIndex];
+        if (frameImage) {
+            ctx.drawImage(
+                frameImage,
+                player.x,
+                player.y + player.offsetY,
+                player.size,
+                player.size
+            );
+        }
+
+        if (elapsed < teleportationDuration) {
+            requestAnimationFrame(teleportationLoop);
+        } else {
+            // After the animation, show the congratulations modal
+            showCongratulations();
+        }
+    }
+
+    // Start the teleportation animation loop
+    requestAnimationFrame(teleportationLoop);
 }
 
 function startGame() {
     if (!window.isGameActive) {
+        console.log('Starting game. All assets are loaded.');
         timeElapsed = 0;
         level = 1;
         window.isGameActive = true;
@@ -148,10 +157,21 @@ function startGame() {
         finishLine.y = finishPoint.row * TILE_SIZE;
         updateCanvasSize();
         drawMaze(ctx, maze, finishLine);
+        autoWinButton.disabled = false;
+        backgroundMusic.play();
         startTimer();
         //lastTime = performance.now();
         requestAnimationFrame((currentTime) => {
-            gameLoop(currentTime, maze, finishLine, showCongratulations, ctx);
+            gameLoop(
+                currentTime,
+                maze,
+                finishLine,
+                showCongratulations,
+                ctx,
+                tilesetImage,
+                backgroundImage,
+                startTeleportationAnimation
+            );
         }); 
 
     }else if(!portalImagesReady){
@@ -211,11 +231,14 @@ startButton.addEventListener('click', () => {
 
 autoWinButton.addEventListener('click', () => {
     if (window.isGameActive) {
+        portalSound.play();
         showCongratulations();
     }
 });
 
 exitButton.addEventListener('click', () => {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
     window.location.reload();
 });
 
@@ -238,11 +261,19 @@ nextLevelButton.addEventListener('click', () => {
         updateCanvasSize();
         drawMaze(ctx, maze, finishLine);
         startTimer();
+        backgroundMusic.play();
         window.isGameActive = true;
-        //lastTime = performance.now();
-        //gameLoop(lastTime, maze, finishLine, showCongratulations, ctx);
         requestAnimationFrame((currentTime) => {
-            gameLoop(currentTime, maze, finishLine, showCongratulations, ctx);
+            gameLoop(
+                currentTime,
+                maze,
+                finishLine,
+                showCongratulations,
+                ctx,
+                tilesetImage,
+                backgroundImage,
+                startTeleportationAnimation
+            );
         });
     } else {
         alert('You have completed all levels!');

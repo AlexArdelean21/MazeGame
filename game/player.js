@@ -1,5 +1,6 @@
 import { TILE_SIZE, MOVE_SPEED, BUFFER_SIZE } from './config.js';
 import { setAnimation } from './characterAnimations.js';
+import {startTeleportationAnimation } from './script.js'; 
 
 export const player = {
     x: TILE_SIZE,
@@ -79,8 +80,16 @@ export function updatePlayerPosition(finishLine, maze) {
         setAnimation('idle');
         snapToGrid();
     }
+    
+    const reachedPortal = isPlayerAtFinishLine(finishLine);
+    return reachedPortal;
+}
 
-    return isPlayerAtFinishLine(finishLine);
+
+function checkPlayerReachedPortal() {
+    if (isPlayerAtFinishLine(finishLine)) {
+        startTeleportationAnimation();
+    }
 }
 
 function snapToGrid() {

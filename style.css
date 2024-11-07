@@ -24,6 +24,7 @@ header {
     padding: 20px; 
     max-width: 700px; 
     width: 100%; 
+    margin: 20px auto; /* Center the container */
 }
 
 canvas {
@@ -32,8 +33,8 @@ canvas {
     background-color: #f1f8e9;
     margin-bottom: 10px; 
     display: block; 
-    height: 600px; 
     width: 100%; 
+    height: auto; /* Allow the canvas to adjust height based on content */
 }
 
 .controls {
@@ -49,7 +50,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s; 
-    margin: 10px; 
+    margin: 10px 5px; /* Adjusted margin for better spacing */
 }
 
 button:hover {
@@ -60,8 +61,8 @@ button:hover {
 p {
     font-size: 20px; 
     color: #333;
+    margin: 5px 0; /* Added margin for consistency */
 }
-
 
 .modal {
     display: none; 
@@ -78,10 +79,16 @@ p {
 
 .modal-content {
     background-color: #fff;
-    padding: 20px;
+    padding: 20px 30px; /* Added horizontal padding */
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    max-width: 500px; /* Limit modal width */
+    margin: 0 20px; /* Ensure it looks good on small screens */
+}
+
+.modal h2 {
+    margin-top: 0; /* Remove default top margin */
 }
 
 .modal-buttons {

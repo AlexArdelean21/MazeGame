@@ -1,3 +1,5 @@
+import { FRAME_RATE } from './config.js';
+
 const animations = {
     'idle': [],
     'down': [],
@@ -8,7 +10,7 @@ const animations = {
 
 ['idle', 'down', 'up', 'walkLeft', 'walkRight'].forEach((type) => {
     let frameCount = 10;
-    if (type == 'idle' || type == 'walkLeft' || type == "walkRight"){
+    if (type === 'idle' || type === 'walkLeft' || type === 'walkRight') {
         frameCount = 8;
     }
 
@@ -20,28 +22,22 @@ const animations = {
 });
 
 let currentFrameIndex = 0;
-const frameRate = 6;
-let lastFrameTime = 0;
+let elapsedTimeSinceLastFrame = 0;
 let currentAnimation = 'idle';
 
-function setAnimation(type) {
+export function setAnimation(type) {
     if (animations[type] && currentAnimation !== type) {
         currentAnimation = type;
         currentFrameIndex = 0;
     }
 }
 
-// Draw the current frame of the player character
-function drawPlayer(ctx, player, currentTime) {
-    if (!lastFrameTime) {
-        lastFrameTime = currentTime;
-    }
+export function drawPlayer(ctx, player, deltaTime) {
+    elapsedTimeSinceLastFrame += deltaTime;
 
-    const elapsedTime = currentTime - lastFrameTime;
-
-    if (elapsedTime > 1000 / frameRate) {
+    if (elapsedTimeSinceLastFrame > 1000 / FRAME_RATE) {
         currentFrameIndex = (currentFrameIndex + 1) % animations[currentAnimation].length;
-        lastFrameTime = currentTime;
+        elapsedTimeSinceLastFrame = 0;
     }
 
     const currentImage = animations[currentAnimation][currentFrameIndex];
@@ -49,12 +45,9 @@ function drawPlayer(ctx, player, currentTime) {
         ctx.drawImage(
             currentImage,
             player.x,
-            player.y + player.offsetY, // Adjust the Y position using the offset to align with the ground
+            player.y + player.offsetY,
             player.size,
             player.size
         );
     }
 }
-
-
-export { drawPlayer, setAnimation };

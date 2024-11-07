@@ -1,6 +1,7 @@
 import { updatePlayerPosition, player } from './player.js';
 import { drawPlayer } from './characterAnimations.js';
 import { drawMaze } from './script.js'; 
+import { drawPortal } from './portal.js';
 
 let lastTime = 0;
 let animationFrameId;
@@ -14,6 +15,7 @@ export function gameLoop(currentTime, maze, finishLine, showCongratulations, ctx
 
     const reachedFinish = updatePlayerPosition(finishLine, maze);
     drawMaze(ctx, maze, finishLine);
+    drawPortal(ctx, finishLine, deltaTime);
     drawPlayer(ctx, player, deltaTime);
 
     if (reachedFinish) {

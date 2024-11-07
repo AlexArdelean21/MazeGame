@@ -1,4 +1,5 @@
 import { generateMazeDFS } from './maze.js';
+import { portalImagesReady } from './portal.js';
 import { player, movePlayer, resetPlayerPosition } from './player.js';
 import { setAnimation } from './characterAnimations.js';
 import { gameLoop, cancelGameLoop } from './gameLoop.js';
@@ -48,6 +49,26 @@ function loadImage(src) {
         img.onerror = reject;
     });
 }
+
+//  startButton.disabled = true; // Disable start button until assets are loaded
+
+Promise.all([
+    loadImage('../assets/tileset 1.png'),
+    loadImage('../assets/RockWall_Normal.png')
+]).then((images) => {
+    tilesetImage.src = images[0].src;
+    backgroundImage.src = images[1].src;
+
+    // Check if portal images are ready
+    const checkAssetsLoaded = setInterval(() => {
+        if (portalImagesReady) {
+            clearInterval(checkAssetsLoaded);
+            startButton.disabled = false;
+        }
+    }, 100);
+}).catch((error) => {
+    console.error('Failed to load images:', error);
+});
 
 Promise.all([
     loadImage('assets/tileset 1.png'),
@@ -99,10 +120,6 @@ export function drawMaze(ctx, maze, finishLine) {
             }
         }
     }
-
-    // Draw finish line
-    ctx.fillStyle = 'green';
-    ctx.fillRect(finishLine.x, finishLine.y, finishLine.size, finishLine.size);
 }
 
 function showCongratulations() {
@@ -135,7 +152,11 @@ function startGame() {
         //lastTime = performance.now();
         requestAnimationFrame((currentTime) => {
             gameLoop(currentTime, maze, finishLine, showCongratulations, ctx);
-        });    }
+        }); 
+
+    }else if(!portalImagesReady){
+        alert('Assets are still loading, please wait.');
+    }
 }
 
 let startTime;

@@ -1,5 +1,5 @@
 export const TILE_SIZE = 64;
-export const MOVE_SPEED = 3;
+export const MOVE_SPEED = 1.5;
 export const BUFFER_SIZE = 2;
 export const INITIAL_MAZE_SIZE = 15;
 export const MAZE_SIZE_MULTIPLIER = 1.2;

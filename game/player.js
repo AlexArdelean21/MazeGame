@@ -9,9 +9,12 @@ export const player = {
     offsetY: 16,
 };
 
+export let playerSpeed = 1;
 let targetPosition = { x: player.x, y: player.y };
 
 export function movePlayer(dx, dy, maze) {
+    dx *= playerSpeed;
+    dy *= playerSpeed;
     let newX = player.x + dx;
     let newY = player.y + dy;
 
@@ -106,4 +109,8 @@ export function resetPlayerPosition() {
     player.x = TILE_SIZE;
     player.y = TILE_SIZE;
     targetPosition = { x: player.x, y: player.y };
+}
+
+export function setPlayerSpeed(speed) {
+    playerSpeed = speed;
 }

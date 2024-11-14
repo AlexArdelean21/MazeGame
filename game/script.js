@@ -1,42 +1,65 @@
 import { generateMazeDFS } from './maze.js';
 import { portalImagesReady, drawPortal } from './portal.js';
-import { player, movePlayer, resetPlayerPosition} from './player.js';
+import { player, movePlayer, resetPlayerPosition, setPlayerSpeed } from './player.js';
 import { setAnimation } from './characterAnimations.js';
 import { gameLoop, cancelGameLoop } from './gameLoop.js';
-import { teleportationFrames, totalTeleportationFrames, teleportationImagesReady } from './teleportationAnimation.js';
+import { teleportationFrames, teleportationImagesReady } from './teleportationAnimation.js';
 import { drawMaze } from './draw.js';
 import {
     TILE_SIZE,
     INITIAL_MAZE_SIZE,
     MAZE_SIZE_MULTIPLIER,
     MAX_LEVEL,
-    TILESET_TILE_SIZE,
-    FRAME_RATE
+    MOVE_SPEED
 } from './config.js';
 
+// Audio elements
 const menuMusic = new Audio('../assets/sounds/awesomeness.wav');
 menuMusic.loop = true;
 menuMusic.volume = 0.5;
 
 const backgroundMusic = new Audio('../assets/sounds/happy.mp3');
 backgroundMusic.loop = true;
-backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
+backgroundMusic.volume = 0.5;
 
 const portalSound = new Audio('../assets/sounds/teleport2.wav');
 portalSound.volume = 0.7;
 
+// Element references
 const canvas = document.getElementById('mazeCanvas');
 const ctx = canvas.getContext('2d');
+
 const startButton = document.getElementById('startButton');
+const autoWinButton = document.getElementById('autoWinButton');
 const timerDisplay = document.getElementById('timer');
 const levelDisplay = document.getElementById('level');
+
 const modal = document.getElementById('congratulationsModal');
 const finalTimeDisplay = document.getElementById('finalTime');
 const nextLevelButton = document.getElementById('nextLevelButton');
 const exitButton = document.getElementById('exitButton');
-const autoWinButton = document.getElementById('autoWinButton');
+
+const settingsButton = document.getElementById('settingsButton');
+const settingsModal = document.getElementById('settingsModal');
+const closeSettingsModal = document.getElementById('closeSettingsModal');
+const volumeControl = document.getElementById('volumeControl');
+const volumeValue = document.getElementById('volumeValue');
+const speedControl = document.getElementById('speedControl');
+const speedValue = document.getElementById('speedValue');
+const speedWarning = document.getElementById('speedWarning');
+const speedControlLabel = document.getElementById('speedControlLabel');
+
+// Set initial volumes and speeds
+const initialVolume = parseFloat(volumeControl.value);
+menuMusic.volume = initialVolume;
+backgroundMusic.volume = initialVolume;
+portalSound.volume = initialVolume * 0.7;
+
+speedControl.value = MOVE_SPEED;
+speedValue.textContent = MOVE_SPEED.toFixed(1);
 
 autoWinButton.disabled = true;
+setPlayerSpeed(MOVE_SPEED);
 
 let timer;
 let timeElapsed = 0;
@@ -53,10 +76,88 @@ let finishLine = {
 const tilesetImage = new Image();
 const backgroundImage = new Image();
 
+// Load saved settings
 window.addEventListener('load', () => {
     menuMusic.play();
+
+    const savedVolume = localStorage.getItem('gameVolume');
+    const savedSpeed = localStorage.getItem('MOVE_SPEED');
+
+    if (savedVolume !== null) {
+        volumeControl.value = savedVolume;
+        volumeValue.textContent = parseFloat(savedVolume).toFixed(2);
+        menuMusic.volume = parseFloat(savedVolume);
+        backgroundMusic.volume = parseFloat(savedVolume);
+        portalSound.volume = parseFloat(savedVolume) * 0.7;
+    }
+
+    if (savedSpeed !== null) {
+        speedControl.value = savedSpeed;
+        speedValue.textContent = parseFloat(savedSpeed).toFixed(1);
+        setPlayerSpeed(parseFloat(savedSpeed));
+    } else {
+        speedControl.value = MOVE_SPEED;
+        speedValue.textContent = MOVE_SPEED.toFixed(1);
+        setPlayerSpeed(MOVE_SPEED);
+    }
 });
 
+// Event listeners for settings
+settingsButton.addEventListener('click', () => {
+    settingsModal.style.display = 'block';
+});
+
+closeSettingsModal.addEventListener('click', () => {
+    settingsModal.style.display = 'none';
+});
+
+// Close the modal when clicking outside of it
+window.addEventListener('click', (event) => {
+    if (event.target === settingsModal) {
+        settingsModal.style.display = 'none';
+    }
+});
+
+volumeControl.addEventListener('input', (event) => {
+    const volume = parseFloat(event.target.value);
+    volumeValue.textContent = volume.toFixed(2);
+    menuMusic.volume = volume;
+    backgroundMusic.volume = volume;
+    portalSound.volume = volume * 0.7;
+    localStorage.setItem('gameVolume', volume);
+});
+
+speedControl.addEventListener('input', (event) => {
+    const speed = parseFloat(event.target.value);
+    speedValue.textContent = speed.toFixed(1);
+});
+
+speedControl.addEventListener('change', (event) => {
+    const speed = parseFloat(event.target.value);
+    speedValue.textContent = speed.toFixed(1);
+    localStorage.setItem('MOVE_SPEED', speed);
+    alert('Changing the player speed will restart the game.');
+    window.location.reload();
+});
+
+// Show warning when hovering over the speed control and label
+speedControl.addEventListener('mouseover', () => {
+    speedWarning.style.display = 'block';
+});
+
+speedControl.addEventListener('mouseout', () => {
+    speedWarning.style.display = 'none';
+});
+
+speedControlLabel.addEventListener('mouseover', () => {
+    speedWarning.style.display = 'block';
+});
+
+speedControlLabel.addEventListener('mouseout', () => {
+    speedWarning.style.display = 'none';
+});
+
+// Image loading function
 function loadImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -85,7 +186,6 @@ Promise.all([
             console.log('All assets loaded. Start button enabled.');
         }
     }, 100);
-    
 }).catch((error) => {
     console.error('Failed to load images:', error);
 });
@@ -108,7 +208,7 @@ export function startTeleportationAnimation() {
     portalSound.play();
 
     let teleportationStartTime = null;
-    const teleportationDuration = 2500; // Duration in milliseconds (3.6 seconds)
+    const teleportationDuration = 2500; // Duration in milliseconds
     const totalFrames = teleportationFrames.length;
     const frameDuration = teleportationDuration / totalFrames;
 
@@ -145,7 +245,7 @@ export function startTeleportationAnimation() {
 }
 
 function startGame() {
-    if (!window.isGameActive) {
+    if (!window.isGameActive && portalImagesReady && teleportationImagesReady) {
         console.log('Starting game. All assets are loaded.');
 
         menuMusic.pause();
@@ -167,11 +267,10 @@ function startGame() {
         finishLine.x = finishPoint.col * TILE_SIZE;
         finishLine.y = finishPoint.row * TILE_SIZE;
         updateCanvasSize();
-        drawMaze(ctx, maze, finishLine, backgroundImage);
+        drawMaze(ctx, maze, tilesetImage, backgroundImage);
         autoWinButton.disabled = false;
-        backgroundMusic.play();
         startTimer();
-        //lastTime = performance.now();
+
         requestAnimationFrame((currentTime) => {
             gameLoop(
                 currentTime,
@@ -185,7 +284,7 @@ function startGame() {
             );
         }); 
 
-    }else if(!portalImagesReady){
+    } else if (!portalImagesReady || !teleportationImagesReady) {
         alert('Assets are still loading, please wait.');
     }
 }
@@ -271,7 +370,7 @@ nextLevelButton.addEventListener('click', () => {
         finishLine.x = finishPoint.col * TILE_SIZE;
         finishLine.y = finishPoint.row * TILE_SIZE;
         updateCanvasSize();
-        drawMaze(ctx, maze, finishLine, backgroundImage);
+        drawMaze(ctx, maze, tilesetImage, backgroundImage);
         startTimer();
         backgroundMusic.play();
         window.isGameActive = true;
@@ -289,10 +388,8 @@ nextLevelButton.addEventListener('click', () => {
         });
     } else {
         alert('You have completed all levels!');
+        menuMusic.play();
         window.location.reload();
-    }
+    } 
 });
-
-requestAnimationFrame((currentTime) => {
-    gameLoop(currentTime, maze, finishLine, showCongratulations, ctx);
-});
+// Chaning the movement speed brokes the game

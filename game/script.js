@@ -374,6 +374,7 @@ nextLevelButton.addEventListener('click', () => {
         startTimer();
         backgroundMusic.play();
         window.isGameActive = true;
+        autoWinButton.disabled = false;
         requestAnimationFrame((currentTime) => {
             gameLoop(
                 currentTime,

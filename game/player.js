@@ -1,4 +1,4 @@
-import { TILE_SIZE, MOVE_SPEED, BUFFER_SIZE } from './config.js';
+import { TILE_SIZE, MOVE_SPEED_DEFAULT, BUFFER_SIZE } from './config.js';
 import { setAnimation } from './characterAnimations.js';
 import {startTeleportationAnimation } from './script.js'; 
 
@@ -13,8 +13,8 @@ export let playerSpeed = 1;
 let targetPosition = { x: player.x, y: player.y };
 
 export function movePlayer(dx, dy, maze) {
-    dx *= playerSpeed;
-    dy *= playerSpeed;
+    //dx *= playerSpeed;
+    //dy *= playerSpeed;
     let newX = player.x + dx;
     let newY = player.y + dy;
 
@@ -65,15 +65,17 @@ export function updatePlayerPosition(finishLine, maze) {
         }
     }
 
-    // Move the player gradually towards the target position
-    if (Math.abs(dx) > MOVE_SPEED) {
-        player.x += dx > 0 ? MOVE_SPEED : -MOVE_SPEED;
+    // Move the player gradually towards the target position without overshooting
+    if (Math.abs(dx) > 0) {
+        const stepX = Math.min(Math.abs(dx), playerSpeed) * Math.sign(dx);
+        player.x += stepX;
     } else {
         player.x = targetPosition.x;
     }
 
-    if (Math.abs(dy) > MOVE_SPEED) {
-        player.y += dy > 0 ? MOVE_SPEED : -MOVE_SPEED;
+    if (Math.abs(dy) > 0) {
+        const stepY = Math.min(Math.abs(dy), playerSpeed) * Math.sign(dy);
+        player.y += stepY;
     } else {
         player.y = targetPosition.y;
     }
@@ -83,7 +85,7 @@ export function updatePlayerPosition(finishLine, maze) {
         setAnimation('idle');
         snapToGrid();
     }
-    
+
     const reachedPortal = isPlayerAtFinishLine(finishLine);
     return reachedPortal;
 }

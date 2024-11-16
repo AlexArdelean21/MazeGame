@@ -10,7 +10,7 @@ import {
     INITIAL_MAZE_SIZE,
     MAZE_SIZE_MULTIPLIER,
     MAX_LEVEL,
-    MOVE_SPEED
+    MOVE_SPEED_DEFAULT
 } from './config.js';
 
 // Audio elements
@@ -55,11 +55,11 @@ menuMusic.volume = initialVolume;
 backgroundMusic.volume = initialVolume;
 portalSound.volume = initialVolume * 0.7;
 
-speedControl.value = MOVE_SPEED;
-speedValue.textContent = MOVE_SPEED.toFixed(1);
+speedControl.value = MOVE_SPEED_DEFAULT;
+speedValue.textContent = MOVE_SPEED_DEFAULT.toFixed(1);
 
 autoWinButton.disabled = true;
-setPlayerSpeed(MOVE_SPEED);
+setPlayerSpeed(MOVE_SPEED_DEFAULT);
 
 let timer;
 let timeElapsed = 0;
@@ -92,13 +92,14 @@ window.addEventListener('load', () => {
     }
 
     if (savedSpeed !== null) {
-        speedControl.value = savedSpeed;
-        speedValue.textContent = parseFloat(savedSpeed).toFixed(1);
-        setPlayerSpeed(parseFloat(savedSpeed));
+        const speed = parseFloat(savedSpeed);
+        speedControl.value = speed;
+        speedValue.textContent = speed.toFixed(1);
+        setPlayerSpeed(speed);
     } else {
-        speedControl.value = MOVE_SPEED;
-        speedValue.textContent = MOVE_SPEED.toFixed(1);
-        setPlayerSpeed(MOVE_SPEED);
+        speedControl.value = MOVE_SPEED_DEFAULT;
+        speedValue.textContent = MOVE_SPEED_DEFAULT.toFixed(1);
+        setPlayerSpeed(MOVE_SPEED_DEFAULT);
     }
 });
 

@@ -30,6 +30,10 @@ portalSound.volume = 0.7;
 const canvas = document.getElementById('mazeCanvas');
 const ctx = canvas.getContext('2d');
 
+const mainScreenImage = new Image();
+mainScreenImage.src = '../assets/images/mainPic.jpg';
+
+
 const startButton = document.getElementById('startButton');
 const autoWinButton = document.getElementById('autoWinButton');
 const timerDisplay = document.getElementById('timer');
@@ -77,9 +81,32 @@ let finishLine = {
 const tilesetImage = new Image();
 const backgroundImage = new Image();
 
+function drawMainScreenImage() {
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+
+    if (mainScreenImage.complete) {
+        ctx.drawImage(mainScreenImage, 0, 0, canvas.width, canvas.height);
+    } else {
+        mainScreenImage.onload = () => {
+            ctx.drawImage(mainScreenImage, 0, 0, canvas.width, canvas.height);
+        };
+    }
+}
+
+mainScreenImage.onload = () => {
+    console.log('Main screen image loaded.');
+};
+
+mainScreenImage.onerror = (error) => {
+    console.error('Failed to load main screen image:', error);
+};
+
+
 // Load saved settings
 window.addEventListener('load', () => {
     menuMusic.play();
+    drawMainScreenImage();
 
     const savedVolume = localStorage.getItem('gameVolume');
     const savedSpeed = localStorage.getItem('MOVE_SPEED');
@@ -329,6 +356,7 @@ window.addEventListener('keydown', (event) => {
 });
 
 startButton.addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     startGame();
 });
 

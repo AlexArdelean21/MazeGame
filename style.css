@@ -1,99 +1,158 @@
-/* Ensure body and html take full height */
-html, body {
-    height: 100%;
+/* Reset margins and paddings for all elements */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
+/* Ensure html and body take full height */
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+/* Remove default body background color */
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #e0f7fa;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; 
-}
-
-/* Header Styling */
-header {
-    background-color: #00796b;
-    color: white;
-    padding: 20px;
-    width: 100%;
-    text-align: center; 
+    background-color: #000;
+    overflow: hidden;
 }
 
 /* Main Content */
 main {
-    flex: 1;
     position: relative;
-}
-
-/* Container */
-.container {
-    text-align: center;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    padding: 20px; 
-    max-width: 700px; 
-    width: 100%; 
-    margin: 20px auto; /* Center the container */
-    position: relative; 
-}
-
-/* Canvas Styling */
-#mazeCanvas {
-    border: 3px solid #00796b;
-    border-radius: 8px;
-    background-color: #f1f8e9;
     width: 100%;
-    height: auto; /* Allow the canvas to adjust height based on content */
+    height: 100vh; /* Full viewport height */
+    overflow: hidden;
+}
+
+/* Main Menu Styling */
+#mainMenu {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Main Menu Canvas Styling */
+#mainMenuCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Start Button Styling */
+#startButton {
+    position: absolute;
+    top: 60%; /* Adjust as needed to position the button vertically */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 24px;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background for visibility */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#startButton:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Settings Button Styling */
+#settingsButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 2;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(85, 85, 85, 0.7);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+#settingsButton:hover {
+    background-color: rgba(51, 51, 51, 0.7);
+}
+
+/* Game Container Styling */
+#gameContainer {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-color: #e0f7fa; 
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Game Canvas Styling */
+#mazeCanvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    image-rendering: pixelated; /* Keeps the graphics sharp when scaled */
+
 }
 
 /* Controls Styling */
 .controls {
-    margin-top: 10px; 
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
 }
 
 .controls button {
-    margin-bottom: 10px;
+    margin: 5px;
 }
 
-/* General Button Styling */
-button {
+/* General Button Styling for Game Controls */
+.controls button {
     padding: 12px 25px;
-    font-size: 18px; 
+    font-size: 18px;
     color: #fff;
     background-color: #00796b;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; 
-    margin: 10px 5px; /* Adjusted margin for better spacing */
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-button:hover {
+.controls button:hover {
     background-color: #004d40;
-    transform: scale(1.05); 
+    transform: scale(1.05);
 }
 
+/* Text Styling */
 p {
-    font-size: 20px; 
+    font-size: 20px;
     color: #333;
-    margin: 5px 0; /* Added margin for consistency */
+    margin: 5px 0;
 }
 
-/* The Modal (background) */
+/* Modal Styling (Bootstrap handles most of the styling) */
 .modal {
-    /* Bootstrap handles modal display */
+    /* Additional modal styling can be added if needed */
 }
 
-/* Modal Content */
-.modal-content {
-    /* Modal content styling can be adjusted if needed */
-}
-
-/* Warning Text for Speed Control */
+/* Warning Text for Speed Control in Settings Modal */
 #speedWarning {
     display: none;
 }
@@ -103,34 +162,13 @@ p {
     display: block;
 }
 
-/* Settings Button */
-#settingsButton {
-    position: fixed; /* Changed to fixed positioning */
-    top: 20px;
-    right: 20px;
-    z-index: 1050; /* Ensure it appears above other elements */
-    width: 50px;
-    height: 50px;
-    background-color: #555;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    color: white;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#settingsButton:hover {
-    background-color: #333;
-}
-
 /* Footer Styling */
 footer {
     background-color: #00796b;
     color: white;
     text-align: center;
     padding: 10px;
-    width: 100%; 
+    width: 100%;
+    position: absolute;
+    bottom: 0;
 }

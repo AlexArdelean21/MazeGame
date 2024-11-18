@@ -27,6 +27,11 @@ const portalSound = new Audio('../assets/sounds/teleport2.wav');
 portalSound.volume = 0.7;
 
 // Element references
+const mainMenuCanvas = document.getElementById('mainMenuCanvas');
+const mainMenuCtx = mainMenuCanvas.getContext('2d');
+const mainMenu = document.getElementById('mainMenu');
+const gameContainer = document.getElementById('gameContainer');
+const startButton = document.getElementById('startButton');
 const canvas = document.getElementById('mazeCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -34,7 +39,6 @@ const mainScreenImage = new Image();
 mainScreenImage.src = '../assets/images/mainPic.jpg';
 
 
-const startButton = document.getElementById('startButton');
 const autoWinButton = document.getElementById('autoWinButton');
 const timerDisplay = document.getElementById('timer');
 const levelDisplay = document.getElementById('level');
@@ -82,26 +86,22 @@ const tilesetImage = new Image();
 const backgroundImage = new Image();
 
 function drawMainScreenImage() {
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+    mainMenuCanvas.width = mainMenuCanvas.parentElement.clientWidth;
+    mainMenuCanvas.height = mainMenuCanvas.parentElement.clientHeight;
 
-    if (mainScreenImage.complete) {
-        ctx.drawImage(mainScreenImage, 0, 0, canvas.width, canvas.height);
-    } else {
-        mainScreenImage.onload = () => {
-            ctx.drawImage(mainScreenImage, 0, 0, canvas.width, canvas.height);
-        };
-    }
+    mainMenuCtx.drawImage(mainScreenImage, 0, 0, mainMenuCanvas.width, mainMenuCanvas.height);
 }
 
 mainScreenImage.onload = () => {
     console.log('Main screen image loaded.');
+    drawMainScreenImage();
 };
 
 mainScreenImage.onerror = (error) => {
     console.error('Failed to load main screen image:', error);
 };
 
+window.addEventListener('resize', drawMainScreenImage);
 
 // Load saved settings
 window.addEventListener('load', () => {
@@ -267,6 +267,8 @@ export function startTeleportationAnimation() {
 function startGame() {
     if (!window.isGameActive && portalImagesReady && teleportationImagesReady) {
         console.log('Starting game. All assets are loaded.');
+        mainMenu.style.display = 'none';
+        gameContainer.style.display = 'block';
 
         menuMusic.pause();
         backgroundMusic.currentTime = 0;
@@ -279,14 +281,21 @@ function startGame() {
         levelDisplay.textContent = level;
         resetPlayerPosition();
         setAnimation('idle');
+
+        // Initialize the maze BEFORE calling updateCanvasSize()
         const { maze: newMaze, finishPoint } = generateMazeDFS(
             INITIAL_MAZE_SIZE,
             INITIAL_MAZE_SIZE
         );
         maze = newMaze;
+
         finishLine.x = finishPoint.col * TILE_SIZE;
         finishLine.y = finishPoint.row * TILE_SIZE;
+
+        // Now that maze is initialized, we can update the canvas size
         updateCanvasSize();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         drawMaze(ctx, maze, tilesetImage, backgroundImage);
         autoWinButton.disabled = false;
         startTimer();
@@ -309,6 +318,7 @@ function startGame() {
     }
 }
 
+
 let startTime;
 
 function startTimer() {
@@ -323,10 +333,25 @@ function startTimer() {
 function updateCanvasSize() {
     const rows = maze.length;
     const cols = maze[0].length;
+
     canvas.width = cols * TILE_SIZE;
     canvas.height = rows * TILE_SIZE;
+
+    // Optional: Scale the canvas to fit within the viewport
+    const scaleX = window.innerWidth / canvas.width;
+    const scaleY = window.innerHeight / canvas.height;
+    const scale = Math.min(scaleX, scaleY);
+
+    canvas.style.transformOrigin = 'top left';
+    canvas.style.transform = `scale(${scale})`;
+
+    // Adjust the game container size if necessary
+    gameContainer.style.width = `${canvas.width * scale}px`;
+    gameContainer.style.height = `${canvas.height * scale}px`;
+
     finishLine.size = TILE_SIZE;
 }
+
 
 window.addEventListener('keydown', (event) => {
     if (!window.isGameActive) return;

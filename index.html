@@ -18,29 +18,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="bg-teal text-white text-center py-4">
-        <h1>Caveport</h1>
-    </header>
 
     <main class="position-relative">
         <!-- Settings Button -->
-        <button id="settingsButton" class="btn btn-secondary position-absolute" style="top: 20px; right: 20px;">
+        <button id="settingsButton" class="btn btn-secondary position-absolute">
             <i class="fas fa-cog"></i>
         </button>
 
-        <div class="container mt-5">
-            <div class="row justify-content-center">
-                <div class="col-md-8 text-center">
+                <!-- Main Menu Container -->
+                <div id="mainMenu">
+                    <!-- Main Screen Canvas for Background Image -->
+                    <canvas id="mainMenuCanvas"></canvas>
+                    <!-- Start Button -->
+                    <button id="startButton" class="btn btn-primary">Start Game</button>
+                </div>
+        
+                <!-- Game Container (Hidden Initially) -->
+                <div id="gameContainer" style="display: none;">
+                    <!-- Game Canvas -->
                     <canvas id="mazeCanvas" class="img-fluid"></canvas>
                     <div class="controls mt-3">
-                        <button id="startButton" class="btn btn-primary mr-2">Start Game</button>
+                        <!-- Game Controls -->
                         <button id="autoWinButton" class="btn btn-danger">Auto Win Level</button>
                         <p class="mt-3">Time: <span id="timer">0</span> seconds</p>
                         <p>Level: <span id="level">1</span></p>
                     </div>
                 </div>
-            </div>
-        </div>
 
         <!-- Congratulations Modal -->
         <div id="congratulationsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="congratsModalLabel">

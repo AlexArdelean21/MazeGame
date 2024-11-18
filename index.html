@@ -4,60 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maze Game</title>
+    <!-- Bootstrap CSS CDN -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    >
+    <!-- Font Awesome for Icons (not in yet) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+    <header class="bg-teal text-white text-center py-4">
         <h1>Maze Game</h1>
     </header>
 
-    <main>
+    <main class="position-relative">
         <!-- Settings Button -->
-        <button id="settingsButton" class="settings-button"></button>
+        <button id="settingsButton" class="btn btn-secondary position-absolute" style="top: 20px; right: 20px;">
+            <i class="fas fa-cog"></i>
+        </button>
 
-        <div class="container">
-            <canvas id="mazeCanvas"></canvas>
-            <div class="controls">
-                <button id="startButton">Start Game</button>
-                <button id="autoWinButton">Auto Win Level</button>
-                <p>Time: <span id="timer">0</span> seconds</p>
-                <p>Level: <span id="level">1</span></p>
-            </div>
-        </div>
-
-        <!-- Congratulations Modal -->
-        <div id="congratulationsModal" class="modal">
-            <div class="modal-content">
-                <h2>Congratulations!</h2>
-                <p>You completed the maze in <span id="finalTime"></span> seconds!</p>
-                <div class="modal-buttons">
-                    <button id="nextLevelButton">Next Level</button>
-                    <button id="exitButton">Exit</button>
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 text-center">
+                    <canvas id="mazeCanvas" class="img-fluid"></canvas>
+                    <div class="controls mt-3">
+                        <button id="startButton" class="btn btn-primary mr-2">Start Game</button>
+                        <button id="autoWinButton" class="btn btn-danger">Auto Win Level</button>
+                        <p class="mt-3">Time: <span id="timer">0</span> seconds</p>
+                        <p>Level: <span id="level">1</span></p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Settings Modal -->
-        <div id="settingsModal" class="modal">
+        <!-- Congratulations Modal -->
+        <div id="congratulationsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="congratsModalLabel">
+            <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <span id="closeSettingsModal" class="close">&times;</span>
-                <h2>Settings</h2>
-                <label for="volumeControl">Volume: <span id="volumeValue">0.5</span></label>
-                <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.5">
-                <br>
-                <label for="speedControl" id="speedControlLabel">Player Speed: <span id="speedValue">1</span></label>
-                <input type="range" id="speedControl" min="1" max="4" step="0.1" value="1">
-                <p id="speedWarning" class="warning-text">Changing this value will restart the game</p>
+              <div class="modal-header">
+                <h5 class="modal-title" id="congratsModalLabel">Congratulations!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <p>You completed the maze in <span id="finalTime"></span> seconds!</p>
+              </div>
+              <div class="modal-footer">
+                <button id="nextLevelButton" class="btn btn-success">Next Level</button>
+                <button id="exitButton" class="btn btn-secondary">Exit</button>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">
+                  <i class="fas fa-cog"></i> Settings
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="volumeControl">Volume: <span id="volumeValue">0.5</span></label>
+                  <input type="range" id="volumeControl" class="custom-range" min="0" max="1" step="0.01" value="0.5">
+                </div>
+                <div class="form-group">
+                  <label for="speedControl" id="speedControlLabel">Player Speed: <span id="speedValue">1</span></label>
+                  <input type="range" id="speedControl" class="custom-range" min="1" max="4" step="0.1" value="1">
+                  <p id="speedWarning" class="text-danger small mt-2">Changing this value will restart the game</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
     </main>
 
-    <footer>
+    <footer class="bg-teal text-white text-center py-2 mt-auto w-100">
         <p>&copy; 2024 Maze Game by Alex Ardelean.</p>
     </footer>
 
-    <!-- Import JavaScript Modules -->
+    <!-- Bootstrap JS, Popper.js, and jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    ></script>
+    <!-- JavaScript Modules -->
     <script type="module" src="./game/script.js"></script>
 </body>
 </html>

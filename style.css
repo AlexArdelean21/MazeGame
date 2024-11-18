@@ -1,13 +1,19 @@
+/* Ensure body and html take full height */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     background-color: #e0f7fa;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin: 0;
     min-height: 100vh; 
 }
 
+/* Header Styling */
 header {
     background-color: #00796b;
     color: white;
@@ -16,6 +22,13 @@ header {
     text-align: center; 
 }
 
+/* Main Content */
+main {
+    flex: 1;
+    position: relative;
+}
+
+/* Container */
 .container {
     text-align: center;
     background: #ffffff;
@@ -28,20 +41,25 @@ header {
     position: relative; 
 }
 
-canvas {
+/* Canvas Styling */
+#mazeCanvas {
     border: 3px solid #00796b;
     border-radius: 8px;
     background-color: #f1f8e9;
-    margin-bottom: 10px; 
-    display: block; 
-    width: 100%; 
+    width: 100%;
     height: auto; /* Allow the canvas to adjust height based on content */
 }
 
+/* Controls Styling */
 .controls {
     margin-top: 10px; 
 }
 
+.controls button {
+    margin-bottom: 10px;
+}
+
+/* General Button Styling */
 button {
     padding: 12px 25px;
     font-size: 18px; 
@@ -67,76 +85,52 @@ p {
 
 /* The Modal (background) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1000; 
-    left: 0;
-    top: 0;
-    width: 100%; 
-    height: 100%; 
-    background-color: rgba(0, 0, 0, 0.7); 
-    justify-content: center;
-    align-items: center;
+    /* Bootstrap handles modal display */
 }
 
 /* Modal Content */
 .modal-content {
-    background-color: #fff;
-    padding: 20px 30px; 
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    max-width: 500px; 
-    margin: 0 20px; /* Ensure it looks good on small screens */
-    position: relative; /* For positioning the close button */
+    /* Modal content styling can be adjusted if needed */
 }
 
-/* Close Button */
-.close {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-}
-
-.warning-text {
+/* Warning Text for Speed Control */
+#speedWarning {
     display: none;
-    color: red;
-    font-size: 0.9em;
-    margin-top: 5px;
 }
 
-#speedControl:hover + .warning-text,
-#speedControlLabel:hover + #speedControl + .warning-text {
+#speedControl:hover + #speedWarning,
+#speedControlLabel:hover + #speedControl + #speedWarning {
     display: block;
 }
 
 /* Settings Button */
-.settings-button {
-    position: absolute;
+#settingsButton {
+    position: fixed; /* Changed to fixed positioning */
     top: 20px;
     right: 20px;
+    z-index: 1050; /* Ensure it appears above other elements */
     width: 50px;
     height: 50px;
     background-color: #555;
     border: none;
     border-radius: 50%;
     cursor: pointer;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-
-.settings-button {
-    background-image: url('../assets/settings.png');
-    background-size: cover;
-    background-position: center;
+#settingsButton:hover {
+    background-color: #333;
 }
 
+/* Footer Styling */
+footer {
+    background-color: #00796b;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    width: 100%; 
+}

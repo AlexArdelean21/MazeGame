@@ -1,3 +1,4 @@
+
 import { generateMazeDFS } from './maze.js';
 import { portalImagesReady, drawPortal } from './portal.js';
 import { player, movePlayer, resetPlayerPosition, setPlayerSpeed } from './player.js';
@@ -105,19 +106,10 @@ window.addEventListener('load', () => {
 
 // Event listeners for settings
 settingsButton.addEventListener('click', () => {
-    settingsModal.style.display = 'block';
+    $('#settingsModal').modal('show');
 });
 
-closeSettingsModal.addEventListener('click', () => {
-    settingsModal.style.display = 'none';
-});
 
-// Close the modal when clicking outside of it
-window.addEventListener('click', (event) => {
-    if (event.target === settingsModal) {
-        settingsModal.style.display = 'none';
-    }
-});
 
 volumeControl.addEventListener('input', (event) => {
     const volume = parseFloat(event.target.value);
@@ -180,7 +172,7 @@ Promise.all([
     backgroundImage.src = images[1].src;
 
     const checkAssetsLoaded = setInterval(() => {
-        console.log('Checking if assets are loaded...');
+        //console.log('Checking if assets are loaded...');
         if (portalImagesReady && teleportationImagesReady) {
             clearInterval(checkAssetsLoaded);
             startButton.disabled = false; // Enable start button
@@ -196,7 +188,7 @@ function showCongratulations() {
     cancelGameLoop();
     window.isGameActive = false;
     portalSound.play();
-    modal.style.display = 'flex';
+    $('#congratulationsModal').modal('show');
     finalTimeDisplay.textContent = timeElapsed;
     backgroundMusic.pause();
     autoWinButton.disabled = true;
@@ -356,7 +348,7 @@ exitButton.addEventListener('click', () => {
 
 nextLevelButton.addEventListener('click', () => {
     if (level < MAX_LEVEL) {
-        modal.style.display = 'none';
+    $('#congratulationsModal').modal('hide');
         level++;
         timeElapsed = 0;
         timerDisplay.textContent = timeElapsed;
@@ -394,4 +386,3 @@ nextLevelButton.addEventListener('click', () => {
         window.location.reload();
     } 
 });
-// Chaning the movement speed brokes the game

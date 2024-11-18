@@ -1,3 +1,4 @@
+
 import { TILE_SIZE, MOVE_SPEED_DEFAULT, BUFFER_SIZE } from './config.js';
 import { setAnimation } from './characterAnimations.js';
 import {startTeleportationAnimation } from './script.js'; 
@@ -13,8 +14,6 @@ export let playerSpeed = 1;
 let targetPosition = { x: player.x, y: player.y };
 
 export function movePlayer(dx, dy, maze) {
-    //dx *= playerSpeed;
-    //dy *= playerSpeed;
     let newX = player.x + dx;
     let newY = player.y + dy;
 

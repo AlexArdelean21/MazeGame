@@ -1,3 +1,4 @@
+
 import { TILE_SIZE } from './config.js';
 
 export const portalFrames = [];
@@ -10,7 +11,7 @@ for (let i = 1; i <= totalPortalFrames; i++) {
     img.src = `../assets/Portal/Portal_100x100px${i}.png`;
     img.onload = () => {
         portalImagesLoaded++;
-        console.log(`Loaded portal frame ${i}`);
+        //zconsole.log(`Loaded portal frame ${i}`);
         if (portalImagesLoaded === totalPortalFrames) {
             portalImagesReady = true;
             console.log('All portal images loaded.');

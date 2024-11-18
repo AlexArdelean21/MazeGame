@@ -5,4 +5,4 @@ export const MAZE_SIZE_MULTIPLIER = 1.2;
 export const MAX_LEVEL = 5;
 export const TILESET_TILE_SIZE = 48;
 export const FRAME_RATE = 6;
-export const MOVE_SPEED_DEFAULT = 1.5; // Default movement speed
+export const MOVE_SPEED_DEFAULT = 3; // Default movement speed

@@ -8,7 +8,7 @@ for (let i = 0; i < totalTeleportationFrames; i++) {
     img.src = `../characters/teleportation_frames/teleport_${i}.png`;
     img.onload = () => {
         teleportationImagesLoaded++;
-        console.log(`Loaded teleportation frame ${i}`);
+        //console.log(`Loaded teleportation frame ${i}`);
         if (teleportationImagesLoaded === totalTeleportationFrames) {
             teleportationImagesReady = true;
             console.log('All teleportation images loaded.');
